@@ -9,8 +9,37 @@
 
 namespace fs = std::filesystem;
 
+void optomise_chunk(Chunk *chunk) {
+    for (int i = 0; i < 16; i++) {
+        for (int j = 0; j < 16; j++) {
+            for (int k = 0; k < 16; k++) {
+                if (j != 16)
+                    if (chunk->blocks[i][j+1][k] != 0) chunk->cull[i][j][k] |= CULL_TOP;
+
+                if (j != 0)
+                    if (chunk->blocks[i][j-1][k] != 0) chunk->cull[i][j][k] |= CULL_BOTTOM;
+
+
+                if (i != 16)
+                    if (chunk->blocks[i+1][j][k] != 0) chunk->cull[i][j][k] |= CULL_EAST;
+
+                if (i != 0)
+                    if (chunk->blocks[i-1][j][k] != 0) chunk->cull[i][j][k] |= CULL_WEST;
+
+
+                if (k != 16)
+                    if (chunk->blocks[i][j][k+1] != 0) chunk->cull[i][j][k] |= CULL_SOUTH;
+
+                if (k != 0)
+                    if (chunk->blocks[i][j][k-1] != 0) chunk->cull[i][j][k] |= CULL_NORTH;
+            }
+        }
+    } 
+};
+
 int main(int argc, char ** argv) {
-    Engine engine;
+    Registry registry;
+    Engine engine(&registry);
 
     engine.init_camera((Vector3){0.0f, 0.0f, 0.0f}, 0.1f, 5.0f);
     engine.init_window(1280, 720, "Minecraft Clone", {134, 219, 255, 255}, 60);
@@ -21,7 +50,22 @@ int main(int argc, char ** argv) {
     ssize_t length = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
 
     fs::path res_dir = fs::path(buffer).parent_path() / "res";
-    engine.load_res(res_dir.c_str());
+
+    Mesh block_mesh = GenMeshCube(1.0f, 1.0f, 1.0f);
+
+    fs::path stone_path = fs::path(res_dir) / "stone.png";
+    Texture2D stone_texture = LoadTexture(stone_path.c_str());
+    Model stone_model = LoadModelFromMesh(block_mesh);
+    stone_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = stone_texture;
+    registry.register_block(2, stone_model);
+    registry.register_texture(stone_texture);
+
+    fs::path dirt_path = fs::path(res_dir) / "dirt.png";
+    Texture2D dirt_texture = LoadTexture(dirt_path.c_str());
+    Model dirt_model = LoadModelFromMesh(block_mesh);
+    dirt_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = dirt_texture;
+    registry.register_block(1, dirt_model);
+    registry.register_texture(dirt_texture);
 
     
     Chunk chunk = {

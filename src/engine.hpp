@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include "structs.hpp"
+#include "registry.hpp"
 
 class Engine {
     private:
@@ -12,7 +13,6 @@ class Engine {
     int window_height;
     int window_width;
     std::string window_title;
-    std::string res_dir;
     Color bg_color;
     Camera3D camera = { 0 };
     Vector3 sphere_pos = (Vector3) {0.0f, 0.0f, 0.0f};
@@ -20,13 +20,11 @@ class Engine {
     float cam_pitch = 0.0f;
     float sensitivity;
     float cam_speed;
-
-    Texture2D dirt_texture = {0};
-    Texture2D stone_texture = {0};
-    Model dirt_model = {0};
-    Model stone_model = {0};
+    Registry *registry;
 
     public:
+    Engine(class Registry *registry);
+    ~Engine();
 
     void init_camera(Vector3 start_position, float sensitivity, float speed);
     void init_window(int window_width, int window_height, const char * window_title, Color bg_color, int target_fps);
@@ -41,8 +39,4 @@ class Engine {
 
     void end_3d_mode();
     void finish_rendering();
-
-    void load_res(const char * res_dir);
-
-    ~Engine();
 };
