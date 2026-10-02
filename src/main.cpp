@@ -319,7 +319,13 @@ int main(int argc, char ** argv) {
     while(!WindowShouldClose()) {
         engine.update();
         engine.begin_rendering();
+
+        engine.begin_3d_mode();
         engine.render_chunk(&chunk, (Vector3){0.0f, 0.0f, 0.0f});
+        engine.end_3d_mode();
+
+        engine.render_hud();
+        
         engine.finish_rendering();
     }
 

@@ -74,19 +74,21 @@ void Engine::update() {
 
 void Engine::begin_rendering() {
     BeginDrawing();
-        ClearBackground(bg_color);
-        BeginMode3D(camera);
-
-            //DrawSphere(sphere_pos, 5, RED);
-            DrawGrid(100, 1.0f);
+    ClearBackground(bg_color);
     
+}
+
+void Engine::begin_3d_mode() {
+    BeginMode3D(this->camera);
+    //DrawSphere(sphere_pos, 5, RED);
+    DrawGrid(100, 1.0f);
 }
 
 void Engine::render_chunk(const Chunk *chunk, Vector3 position) {
     for (int i = 0; i < 16; i++) {
         for (int j = 0; j < 16; j++) {
             for (int k = 0; k < 16; k++) {
-                Vector3 block_position = Vector3Add(position, (Vector3){i,j,k});
+                Vector3 block_position = Vector3Add(position, (Vector3){i,16-j,k});
                 if (chunk->blocks[i][j][k] == STONE) {
                     DrawModel(this->stone_model, block_position, 1.0f, WHITE);
                 } else if (chunk->blocks[i][j][k] == DIRT) {
@@ -97,8 +99,30 @@ void Engine::render_chunk(const Chunk *chunk, Vector3 position) {
     }
 }
 
-void Engine::finish_rendering() {
+void Engine::end_3d_mode() {
     EndMode3D();
+}
+
+void Engine::render_hud() {
+    Vector3 cam_dir = Vector3Subtract(this->camera.position, this->camera.target);
+    Vector3 forward = Vector3Normalize(cam_dir);
+
+    if (std::abs(forward.x) > std::abs(forward.z)) {
+        if (forward.x < 0) { 
+            DrawText("Facing west (-X)", 5, 5, 24, BLACK);
+        } else {
+            DrawText("Facing east (+X)", 5, 5, 24, BLACK);
+        }
+    } else {
+        if (forward.z < 0) { 
+            DrawText("Facing north (-Z)", 5, 5, 24, BLACK);
+        } else {
+            DrawText("Facing south (+Z)", 5, 5, 24, BLACK);
+        }
+    }
+}
+
+void Engine::finish_rendering() {
     EndDrawing();
 }
 

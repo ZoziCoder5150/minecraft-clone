@@ -32,8 +32,14 @@ class Engine {
     void init_window(int window_width, int window_height, const char * window_title, Color bg_color, int target_fps);
 
     void update();
+
     void begin_rendering();
+    void begin_3d_mode();
+
     void render_chunk(const Chunk * chunk, Vector3 position);
+    void render_hud();
+
+    void end_3d_mode();
     void finish_rendering();
 
     void load_res(const char * res_dir);
