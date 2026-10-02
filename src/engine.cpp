@@ -2,7 +2,10 @@
 #include "raymath.h"
 #include <iostream>
 #include <string>
+#include <filesystem>
 #include "engine.hpp"
+
+namespace fs = std::filesystem;
 
 void Engine::init_camera(Vector3 start_position, float sensitivity, float speed) {
     this->sensitivity = sensitivity;
@@ -69,18 +72,59 @@ void Engine::update() {
     camera.target = Vector3Add(camera.position, cam_direction);
 }
 
-void Engine::render() {
+void Engine::begin_rendering() {
     BeginDrawing();
         ClearBackground(bg_color);
         BeginMode3D(camera);
 
-            DrawSphere(sphere_pos, 5, RED);
+            //DrawSphere(sphere_pos, 5, RED);
             DrawGrid(100, 1.0f);
-            
-        EndMode3D();
+    
+}
+
+void Engine::render_chunk(const Chunk *chunk, Vector3 position) {
+    for (int i = 0; i < 16; i++) {
+        for (int j = 0; j < 16; j++) {
+            for (int k = 0; k < 16; k++) {
+                Vector3 block_position = Vector3Add(position, (Vector3){i,j,k});
+                if (chunk->blocks[i][j][k] == STONE) {
+                    DrawModel(this->stone_model, block_position, 1.0f, WHITE);
+                } else if (chunk->blocks[i][j][k] == DIRT) {
+                    DrawModel(this->dirt_model, block_position, 1.0f, WHITE);
+                }
+            }
+        }
+    }
+}
+
+void Engine::finish_rendering() {
+    EndMode3D();
     EndDrawing();
+}
+
+void Engine::load_res(const char * res_dir) {
+    this->res_dir = res_dir;
+
+    fs::path stone_path = fs::path(res_dir) / "stone.png";
+    fs::path dirt_path = fs::path(res_dir) / "dirt.png";
+
+    this->stone_texture = LoadTexture(stone_path.c_str());
+    this->dirt_texture = LoadTexture(dirt_path.c_str());
+
+    Mesh block_mesh = GenMeshCube(1.0f, 1.0f, 1.0f);
+
+    this->stone_model = LoadModelFromMesh(block_mesh);
+    this->dirt_model = LoadModelFromMesh(block_mesh);
+
+    this->stone_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = this->stone_texture;
+    this->dirt_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = this->dirt_texture;
 }
 
 Engine::~Engine() {
     CloseWindow();
+    UnloadModel(this->stone_model);
+    UnloadModel(this->dirt_model);
+
+    UnloadTexture(this->stone_texture);
+    UnloadTexture(this->dirt_texture);
 }

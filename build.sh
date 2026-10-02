@@ -1,6 +1,8 @@
 rm -rf build
 mkdir build
 
+cp -r src/res build/res
+
 g++ -c src/main.cpp -o build/main.o -I./raylib/src
 g++ -c src/engine.cpp -o build/engine.o -I./raylib/src
 
