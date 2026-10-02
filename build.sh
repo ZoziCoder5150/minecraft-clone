@@ -2,5 +2,6 @@ rm -rf build
 mkdir build
 
 g++ -c src/main.cpp -o build/main.o -I./raylib/src
+g++ -c src/engine.cpp -o build/engine.o -I./raylib/src
 
-g++ build/main.o -o build/final -L./raylib/src -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+g++ build/main.o build/engine.o -o build/final -L./raylib/src -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
