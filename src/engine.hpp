@@ -20,14 +20,14 @@ class Engine {
     float cam_pitch = 0.0f;
     float sensitivity;
     float cam_speed;
+    Mesh block_mesh;
     Registry *registry;
 
     public:
-    Engine(class Registry *registry);
+    Engine(class Registry *registry, int window_width, int window_height, const char * window_title, Color bg_color, int target_fps);
     ~Engine();
 
     void init_camera(Vector3 start_position, float sensitivity, float speed);
-    void init_window(int window_width, int window_height, const char * window_title, Color bg_color, int target_fps);
 
     void update();
 

@@ -8,8 +8,19 @@
 
 namespace fs = std::filesystem;
 
-Engine::Engine(class Registry *registry) {
+Engine::Engine(class Registry *registry, int window_width, int window_height, const char * window_title, Color bg_color, int target_fps) {
+    this->bg_color = bg_color;
+    this->window_height = window_height;
+    this->window_width = window_width;
+    this->window_title = window_title;
+
+    InitWindow(window_width, window_height, window_title);
+
+    SetTargetFPS(target_fps);
+    DisableCursor();
+
     this->registry = registry;
+    this->block_mesh = GenMeshCube(1.0f, 1.0f, 1.0f);
 }
 
 void Engine::init_camera(Vector3 start_position, float sensitivity, float speed) {
@@ -20,18 +31,6 @@ void Engine::init_camera(Vector3 start_position, float sensitivity, float speed)
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
     camera.fovy = 45.0f;
     camera.projection = CAMERA_PERSPECTIVE;
-}
-
-void Engine::init_window(int window_width, int window_height, const char * window_title, Color bg_color, int target_fps) {
-    this->bg_color = bg_color;
-    this->window_height = window_height;
-    this->window_width = window_width;
-    this->window_title = window_title;
-
-    InitWindow(window_width, window_height, window_title);
-
-    SetTargetFPS(target_fps);
-    DisableCursor();
 }
 
 void Engine::update() {
@@ -93,10 +92,18 @@ void Engine::render_chunk(const Chunk *chunk, Vector3 position) {
     for (int i = 0; i < 16; i++) {
         for (int j = 0; j < 16; j++) {
             for (int k = 0; k < 16; k++) {
+                if (chunk->blocks[i][j][k] == 0) continue;
                 Vector3 block_position = Vector3Add(position, (Vector3){i,16-j,k});
-                Model block_model = this->registry->get_block(chunk->blocks[i][j][k]);
 
-                DrawModel(block_model, block_position, 1.0f, WHITE);
+                RegistryBlock block = this->registry->get_block(chunk->blocks[i][j][k]);
+                Texture2D block_texture = this->registry->get_texture(block.top);
+
+                Material block_material = LoadMaterialDefault();
+                block_material.maps[MATERIAL_MAP_DIFFUSE].texture = block_texture;
+
+                Matrix transform_matrix = MatrixTranslate(block_position.x, block_position.y, block_position.z);
+
+                DrawMesh(this->block_mesh, block_material, transform_matrix);
             }
         }
     }

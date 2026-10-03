@@ -25,6 +25,15 @@ enum CulledFaces : std::uint8_t {
 };
 
 typedef struct {
+    TextureID top;
+    TextureID bottom;
+    TextureID east;
+    TextureID west;
+    TextureID north;
+    TextureID south;    
+} RegistryBlock;
+
+typedef struct {
     BlockID blocks[16][16][16];
     uint8_t cull[16][16][16];
 } Chunk;

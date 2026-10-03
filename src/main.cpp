@@ -39,10 +39,9 @@ void optomise_chunk(Chunk *chunk) {
 
 int main(int argc, char ** argv) {
     Registry registry;
-    Engine engine(&registry);
+    Engine engine(&registry, 1280, 720, "Minecraft Clone", {134, 219, 255, 255}, 60);
 
     engine.init_camera((Vector3){0.0f, 0.0f, 0.0f}, 0.1f, 5.0f);
-    engine.init_window(1280, 720, "Minecraft Clone", {134, 219, 255, 255}, 60);
     
     /* Get resources directory */
 
@@ -50,22 +49,20 @@ int main(int argc, char ** argv) {
     ssize_t length = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
 
     fs::path res_dir = fs::path(buffer).parent_path() / "res";
-
-    Mesh block_mesh = GenMeshCube(1.0f, 1.0f, 1.0f);
-
+    
     fs::path stone_path = fs::path(res_dir) / "stone.png";
     Texture2D stone_texture = LoadTexture(stone_path.c_str());
-    Model stone_model = LoadModelFromMesh(block_mesh);
-    stone_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = stone_texture;
-    registry.register_block(2, stone_model);
-    registry.register_texture(stone_texture);
+    RegistryBlock stone_block = {0};
+    stone_block.top = 2;
+    registry.register_block(2, stone_block);
+    registry.register_texture(2, stone_texture);
 
     fs::path dirt_path = fs::path(res_dir) / "dirt.png";
     Texture2D dirt_texture = LoadTexture(dirt_path.c_str());
-    Model dirt_model = LoadModelFromMesh(block_mesh);
-    dirt_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = dirt_texture;
-    registry.register_block(1, dirt_model);
-    registry.register_texture(dirt_texture);
+    RegistryBlock dirt_block = {0};
+    dirt_block.top = 1;
+    registry.register_block(1, dirt_block);
+    registry.register_texture(1, dirt_texture);
 
     
     Chunk chunk = {
